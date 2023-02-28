@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const mongoose = require('mongoose')
 const TransactionModel = require('./models/Transactions')
-mongoose.connect("mongodb+srv://yangpu2007360:expensetrackermongodb@transactions.r0enknq.mongodb.net/transactionrecords?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://yangpu2007360:<password>.r0enknq.mongodb.net/transactionrecords?retryWrites=true&w=majority")
 var cors = require('cors')
 app.use(cors()) // Use this after the variable declaration
 app.use(bodyParser.json())
