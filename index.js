@@ -1,30 +1,43 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-// const { text } = require('body-parser')
 const app = express()
+const mongoose = require('mongoose')
+const TransactionModel = require('./models/Transactions')
+mongoose.connect("mongodb+srv://yangpu2007360:expensetrackermongodb@transactions.r0enknq.mongodb.net/transactionrecords?retryWrites=true&w=majority")
 var cors = require('cors')
 app.use(cors()) // Use this after the variable declaration
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 const port = 3000
-var record = []
 app.get('/', (req, res) => {
-    res.send(record)
+    TransactionModel.find({}).then((response) => {
+        res.send(response)
+    })
 })
-app.post('/', (req, res) => {
-    let data = req.body;
-    record.push(data)
-    res.send(record);
+
+app.post('/', async (req, res) => {
+    const newRecord = new TransactionModel({
+        id: req.body.id,
+        text: req.body.text,
+        amount: req.body.amount
+    })
+    await newRecord.save()
+    res.send(newRecord)
 })
-app.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    const recordToDelete = record.find(p => p.id == id);
-    if (!recordToDelete) {
-        return res.send({ message: 'Not a valid ID' })
+app.delete('/:id', async (req, res) => {
+    TransactionModel.find({ id: req.params.id }).then((response) => {
+        if (response.length == 0) {
+            res.send("no such id!!!")
+            return
+        }
+    })
+    try {
+        await TransactionModel.deleteOne({ id: req.params.id })
+        res.status(204).send()
+    } catch {
+        res.status(404)
+        res.send({ error: "Error" })
     }
-    const projectIndex = record.findIndex(p => p.id == id);
-    record.splice(projectIndex, 1);
-    return res.send(record);
 })
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
